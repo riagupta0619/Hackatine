@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaskFlow</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+.task-completed { text-decoration: line-through; opacity: 0.6; }
+.priority-high { background-color: rgba(252, 141, 98, 0.1); border-left: 3px solid rgba(252, 141, 98, 1); }
+.priority-medium { background-color: rgba(251, 191, 114, 0.1); border-left: 3px solid rgba(251, 191, 114, 1); }
+.priority-low { background-color: rgba(141, 211, 199, 0.1); border-left: 3px solid rgba(141, 211, 199, 1); }
+/* Dark mode styles */
+[data-theme="dark"] {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+[data-theme="dark"] .bg-white {
+  background-color: #2d2d2d;
+}
+[data-theme="dark"] .text-gray-900 {
+  color: #ffffff;
+}
+[data-theme="dark"] .text-gray-600,
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .text-gray-400 {
+  color: #a0a0a0;
+}
+[data-theme="dark"] .border-gray-200 {
+  border-color: #404040;
+}
+[data-theme="dark"] .shadow,
+[data-theme="dark"] .shadow-sm {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+}
+[data-theme="dark"] .hover\:bg-gray-50:hover {
+  background-color: #363636;
+}
+[data-theme="dark"] .bg-gray-50 {
+  background-color: #1a1a1a;
+}
+[data-theme="dark"] .bg-gray-100 {
+  background-color: #363636;
+}
+[data-theme="dark"] input {
+  background-color: #363636;
+  color: #ffffff;
+}
+[data-theme="dark"] input::placeholder {
+  color: #a0a0a0;
+}
+[data-theme="dark"] .priority-high,
+[data-theme="dark"] .priority-medium,
+[data-theme="dark"] .priority-low {
+  background-color: rgba(45, 45, 45, 0.9);
+}
+[data-theme="dark"] {
+background-color: #1a1a1a;
+color: #ffffff;
+}
+[data-theme="dark"] .bg-white {
+background-color: #2d2d2d;
+}
+[data-theme="dark"] .text-gray-900 {
+color: #ffffff;
+}
+[data-theme="dark"] .text-gray-600,
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .text-gray-400 {
+color: #a0a0a0;
+}
+[data-theme="dark"] .border-gray-200 {
+border-color: #404040;
+}
+[data-theme="dark"] .shadow,
+[data-theme="dark"] .shadow-sm {
+box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+}
+[data-theme="dark"] .hover\:bg-gray-50:hover {
+background-color: #363636;
+}
+[data-theme="dark"] input {
+background-color: #363636;
+color: #ffffff;
+}
+[data-theme="dark"] input::placeholder {
+color: #a0a0a0;
+}
+</style>
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+primary: '#4F46E5',
+secondary: '#10B981'
+},
+borderRadius: {
+'none': '0px',
+'sm': '4px',
+DEFAULT: '8px',
+'md': '12px',
+'lg': '16px',
+'xl': '20px',
+'2xl': '24px',
+'3xl': '32px',
+'full': '9999px',
+'button': '8px'
+}
+}
+}
+}
+</script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<nav class="bg-white shadow-sm">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-16">
+<div class="flex items-center">
+<span class="text-2xl font-['Pacifico'] text-primary">logo</span>
+</div>
+<div class="flex-1 flex justify-center px-2 lg:ml-6 lg:justify-center">
+<div class="max-w-lg w-full lg:max-w-xs">
+<label for="search" class="sr-only">Search tasks</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<i class="ri-search-line text-gray-400"></i>
+</div>
+<input id="search" name="search" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-full leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm" placeholder="Search tasks..." type="search">
+</div>
+</div>
+</div>
+<div class="flex items-center space-x-4">
+<button class="p-2 rounded-full text-gray-400 hover:text-gray-500 relative">
+<i class="ri-notification-3-line text-xl"></i>
+<span class="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-400"></span>
+</button>
+<button id="themeToggle" class="p-2 rounded-full text-gray-400 hover:text-gray-500">
+<i class="ri-contrast-2-line text-xl"></i>
+</button>
+<div class="relative flex-shrink-0">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white cursor-pointer">
+JD
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+<div class="lg:col-span-1">
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-lg font-medium text-gray-900">Progress</h2>
+<div class="flex items-center space-x-1">
+<i class="ri-fire-line text-orange-500"></i>
+<span class="text-sm font-medium text-gray-600">5 days streak!</span>
+</div>
+</div>
+<div class="relative pt-1">
+<div class="flex mb-2 items-center justify-between">
+<div>
+<span class="text-xs font-semibold inline-block text-primary">
+Today's Progress
+</span>
+</div>
+<div class="text-right">
+<span class="text-xs font-semibold inline-block text-primary">
+75%
+</span>
+</div>
+</div>
+<div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-primary/10">
+<div style="width:75%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary"></div>
+</div>
+</div>
+<p class="text-sm text-gray-600 mt-2">Keep going! You're doing great today!</p>
+</div>
+<div class="bg-white rounded-lg shadow p-6">
+<h2 class="text-lg font-medium text-gray-900 mb-4">Filters</h2>
+<div class="space-y-2">
+<button class="w-full text-left px-4 py-2 rounded-lg bg-primary/5 text-primary font-medium">
+<i class="ri-list-check-2 mr-2"></i>All Tasks
+</button>
+<button class="w-full text-left px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50">
+<i class="ri-calendar-check-line mr-2"></i>Today
+</button>
+<button class="w-full text-left px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50">
+<i class="ri-calendar-line mr-2"></i>Upcoming
+</button>
+<button class="w-full text-left px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50">
+<i class="ri-checkbox-circle-line mr-2"></i>Completed
+</button>
+</div>
+</div>
+</div>
+<div class="lg:col-span-3">
+<div class="flex justify-between items-center mb-6">
+<div class="flex space-x-4">
+<button class="inline-flex items-center px-4 py-2 border border-gray-200 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+<i class="ri-filter-3-line mr-2"></i>
+Filter
+</button>
+<button class="inline-flex items-center px-4 py-2 border border-gray-200 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+<i class="ri-sort-desc mr-2"></i>
+Sort
+</button>
+</div>
+<button class="inline-flex items-center px-4 py-2 border border-transparent rounded-button text-sm font-medium text-white bg-primary hover:bg-primary/90">
+<i class="ri-add-line mr-2"></i>
+Add Task
+</button>
+</div>
+<div class="space-y-4" id="taskList">
+<!-- Tasks will be dynamically inserted here -->
+</div>
+</div>
+</div>
+</main>
+<div class="fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 p-4">
+<div class="max-w-7xl mx-auto flex items-center space-x-4">
+<input type="text" placeholder="Add a quick task..." class="flex-1 border-none focus:ring-2 focus:ring-primary rounded-lg py-2 px-4 text-sm">
+<button class="inline-flex items-center px-4 py-2 border border-transparent rounded-button text-sm font-medium text-white bg-primary hover:bg-primary/90 whitespace-nowrap">
+Add Task
+</button>
+</div>
+</div>
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const currentTheme = html.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  
+  const themeIcon = document.querySelector('#themeToggle i');
+  if (newTheme === 'dark') {
+    themeIcon.classList.remove('ri-contrast-2-line');
+    themeIcon.classList.add('ri-sun-line');
+  } else {
+    themeIcon.classList.remove('ri-sun-line');
+    themeIcon.classList.add('ri-contrast-2-line');
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  
+  const themeIcon = document.querySelector('#themeToggle i');
+  if (savedTheme === 'dark') {
+    themeIcon.classList.remove('ri-contrast-2-line');
+    themeIcon.classList.add('ri-sun-line');
+  }
+  
+  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+});
+const mockTasks = [
+{
+id: 1,
+title: "Review Q1 Marketing Strategy",
+description: "Analyze campaign performance and prepare recommendations",
+dueDate: "2025-02-20",
+priority: "high",
+category: "Marketing",
+completed: false
+},
+{
+id: 2,
+title: "Update Client Presentation",
+description: "Include latest project milestones and metrics",
+dueDate: "2025-02-19",
+priority: "medium",
+category: "Client",
+completed: true
+},
+{
+id: 3,
+title: "Team Weekly Sync",
+description: "Discuss project progress and blockers",
+dueDate: "2025-02-19",
+priority: "low",
+category: "Meeting",
+completed: false
+}
+];
+function renderTasks() {
+const taskList = document.getElementById('taskList');
+taskList.innerHTML = mockTasks.map(task => `
+<div class="bg-white rounded-lg shadow-sm p-4 priority-${task.priority} ${task.completed ? 'task-completed' : ''}">
+<div class="flex items-start">
+<div class="flex-shrink-0 pt-1">
+<input type="checkbox" class="h-4 w-4 text-primary rounded border-gray-300 focus:ring-primary" ${task.completed ? 'checked' : ''}>
+</div>
+<div class="ml-3 flex-1">
+<div class="flex items-center justify-between">
+<p class="text-sm font-medium text-gray-900">${task.title}</p>
+<div class="flex items-center">
+<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+${task.category}
+</span>
+</div>
+</div>
+<p class="mt-1 text-sm text-gray-500">${task.description}</p>
+<div class="mt-2 flex items-center text-sm text-gray-500">
+<i class="ri-calendar-line mr-1.5"></i>
+<p>Due ${task.dueDate}</p>
+</div>
+</div>
+</div>
+</div>
+`).join('');
+document.querySelectorAll('input[type="checkbox"]').forEach((checkbox, index) => {
+checkbox.addEventListener('change', () => {
+mockTasks[index].completed = checkbox.checked;
+renderTasks();
+});
+});
+}
+renderTasks();
+
+document.addEventListener("DOMContentLoaded", function () {
+  const searchInput = document.querySelector('input[placeholder="Search tasks..."]');
+
+  searchInput.addEventListener("input", function () {
+    const query = searchInput.value.toLowerCase();
+    filterTasks(query);
+  });
+});
+
+function filterTasks(query) {
+  const taskList = document.getElementById("taskList");
+  taskList.innerHTML = "";
+
+  mockTasks
+    .filter((task) => task.title.toLowerCase().includes(query) || task.description.toLowerCase().includes(query))
+    .forEach((task) => {
+      const taskElement = document.createElement("div");
+      taskElement.className = `bg-gray-50 rounded-lg p-4 ${task.completed ? "task-completed" : ""}`;
+
+      taskElement.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-4">
+            <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleTask(${task.id})" class="w-5 h-5 text-primary rounded-full">
+            <div>
+              <h3 class="font-medium">${task.title}</h3>
+              <p class="text-sm text-gray-600">${task.description}</p>
+              <div class="flex items-center space-x-2 mt-2">
+                <span class="text-xs font-medium text-gray-600">${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} Priority</span>
+                <span class="text-xs text-gray-500">Due: ${task.dueDate}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      taskList.appendChild(taskElement);
+    });
+}
+</script>
+</body>
+</html>
